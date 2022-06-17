@@ -36,34 +36,22 @@ public class Publisher extends Node implements Runnable {
     private static String chatServer = "127.0.0.1";
     private static File mediaDirectory = new File(new File("").getAbsolutePath() + "/data/media/");
 
-    public Publisher() {
+    public Publisher(String username) {
+
         loadTopics();
-        System.out.print("Please enter your name : ");
-        Scanner scanner = new Scanner(System.in);
-        username = scanner.nextLine();
+        this.username = username;
     }
 
     // TODO CONNECT TO RIGHT BROKER
     // AND PUSH DATA TO BROKER`S QUEUE
     public void start() throws UnknownHostException, IOException {
-        System.out.println("--Topics--");
-        for (Topic topic : topics) {
-            System.out.println(topic.getChannelName());
-        }
-        System.out.print("Select a topic : ");
-        Scanner myTopic = new Scanner(System.in);
-        String subject = myTopic.nextLine();
-        for (Topic topic : topics) {
-            if (topic.getChannelName().equals(subject)) {
+
                 client = new Socket(InetAddress.getByName(chatServer), 1234);
                 input = new DataInputStream(client.getInputStream());
                 output = new DataOutputStream(client.getOutputStream());
-                push(subject);
+
                 if (!flag)
                     disconnect();
-                break;
-            }
-        }
     }
 
     private void disconnect() {

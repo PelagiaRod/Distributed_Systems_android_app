@@ -5,12 +5,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public final class FileHelper {
     public static ArrayList<String> readFile(String path) {
         ArrayList<String> txtLines = new ArrayList<>();
+
         try {
+
             FileReader fReader = new FileReader(path);
             BufferedReader buffReader = new BufferedReader(fReader);
 
@@ -20,6 +23,8 @@ public final class FileHelper {
                 line = buffReader.readLine();
             }
             buffReader.close();
+
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

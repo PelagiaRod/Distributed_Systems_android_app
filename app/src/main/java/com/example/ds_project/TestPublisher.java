@@ -9,7 +9,7 @@ import java.util.*;
 
 public class TestPublisher {
     public static void main(String[] args) throws UnknownHostException, IOException {
-        Publisher publisher = new Publisher();
+        Publisher publisher = new Publisher("Publisher");
         publisher.start();
     }
 }

@@ -28,6 +28,9 @@ public class Broker extends Node {
     private static List<Topic> allTopics;
     static ArrayList<Integer> allBrokHash;
 
+    public Broker() {
+    }
+
     public Broker(String name, String ip, int port) {
         this.name = name;
         this.ip = ip;
