@@ -1,5 +1,7 @@
 package com.example.ds_project;
 
+import android.widget.TextView;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -22,13 +24,14 @@ public class Consumer extends Node implements Runnable {
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
-    private static String chatServer = "127.0.0.1";
+    private static String chatServer = "192.168.1.190"; //"127.0.0.1"
 
-    public Consumer() {
-        System.out.print("Please enter your name : ");
-        Scanner scanner = new Scanner(System.in);
-        username = scanner.nextLine();
-        loadTopics();
+    public Consumer(String username) {
+        //System.out.print("Please enter your name : ");
+        //Scanner scanner = new Scanner(System.in);
+        //username = scanner.nextLine();
+        this.username = username;
+        //loadTopics();
     }
 
     public Consumer(ProfileName subscriber) {
@@ -40,7 +43,7 @@ public class Consumer extends Node implements Runnable {
     }
 
     void disconnect(String topic) {
-        // unsibscribe
+        // unsubscribe
     }
 
     void register(String topic) {
@@ -54,6 +57,7 @@ public class Consumer extends Node implements Runnable {
     // TODO CONNECT TO FIRST RANDOM BROKER AND BROKER SEND BROKERS LIST WITH TOPICS
     // AND SELECT THE RIGHT BROKER TO CONNECT
     public void start() throws UnknownHostException, IOException {
+
         System.out.println("--Topics--");
         for (Topic topic : topics) {
             System.out.println(topic.getChannelName());
@@ -72,70 +76,40 @@ public class Consumer extends Node implements Runnable {
         }
     }
 
-    public synchronized void pull(String subject) throws IOException {
+    public synchronized void pull(String subject) throws IOException { //void
+        client = new Socket(InetAddress.getByName(chatServer), 1234); //start()
+        input = new DataInputStream(client.getInputStream());
+        output = new DataOutputStream(client.getOutputStream());
         // readMessage thread
+        /*
         output.writeUTF(username);
         output.writeUTF(subject);
         output.writeUTF("subscriber");
+
+         */
         Thread readMessage = new Thread(new Runnable() {
             @Override
             public void run() {
+                /*
                 try {
                     output.writeUTF("BrokersList");
                 } catch (IOException e) {
                     e.printStackTrace();
-                }
-                while (true) {
+                }*/
+               // while (true) { //runs when refresh button is pressed
                     try {
                         // read the message sent to this client
                         String msg = input.readUTF();
-                        System.out.println(msg);
+                        System.out.println("----->" + msg);
+                        //return msg;
                     } catch (IOException e) {
                         e.printStackTrace();
                         return;
                     }
-                }
+               // }
             }
         });
         readMessage.start();
     }
 
 }
-/*
- * TRASH CODE
- * try{
- * Socket client = new Socket("127.0.0.1", 1234);
- *
- * String str = "Gigi";
- *
- * OutputStreamWriter os = new OutputStreamWriter(client.getOutputStream());
- * PrintWriter out = new PrintWriter(os);
- * out.println(str);
- * os.flush();
- *
- * ConsumerHandler cHandler = new ConsumerHandler(client);
- * Thread t = new Thread(cHandler);
- * t.start();
- * //out = new ObjectOutputStream(client.getOutputStream());
- * //in = new ObjectInputStream(client.getInputStream());
- *
- * //ConsumerHandler cHandler = new ConsumerHandler(client);
- * //Thread t = new Thread(cHandler);
- * //t.start();
- * } catch (IOException e){
- * e.printStackTrace();
- * }
- * try {
- * //out = new ObjectOutputStream(connection.getOutputStream());
- * //in = new ObjectInputStream(connection.getInputStream());
- * BufferedReader inReader = new BufferedReader(new
- * InputStreamReader(System.in));
- * while (true)
- * {
- * String message = inReader.readLine();
- * System.out.println(message);
- * }
- * } catch (IOException e) {
- * e.printStackTrace();
- * }
- */

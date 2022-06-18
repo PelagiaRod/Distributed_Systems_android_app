@@ -36,13 +36,19 @@ public class Node {
     public ArrayList<Topic>  getTopics(){
         return topics;
     }
-    public void loadBrokers() {
 
+    public void loadBrokers() {
+        brokers.add(new Broker("Broker1", "127.0.0.1", 1234));
+        brokers.add(new Broker("Broker2", "127.0.0.1", 1235));
+        brokers.add(new Broker("Broker3", "127.0.0.1", 1236));
+
+/*
         ArrayList<String> brokersLines = FileHelper.readFile(brokersPath);
+
         for (String line : brokersLines) {
             String[] data = line.split(" , ");
             brokers.add(new Broker(data[0], data[1], Integer.parseInt(data[2])));
-        }
+        }*/
     }
 
     public void printBrokers() {

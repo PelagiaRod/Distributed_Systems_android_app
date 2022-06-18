@@ -33,12 +33,12 @@ public class Publisher extends Node implements Runnable {
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
-    private static String chatServer = "127.0.0.1";
+    private static String chatServer = "192.168.1.190"; //
     private static File mediaDirectory = new File(new File("").getAbsolutePath() + "/data/media/");
 
     public Publisher(String username) {
 
-        loadTopics();
+        //loadTopics();
         this.username = username;
     }
 
@@ -103,7 +103,7 @@ public class Publisher extends Node implements Runnable {
 
     // synchronized method in order to avoid a race condition and
     // ALLOW only one thread to execute this block at any given time
-    public synchronized void push(String subject) {
+    public synchronized void push(String subject, String type, String msg) {
         try {
             output.writeUTF(username);
             output.writeUTF(subject);
@@ -114,9 +114,9 @@ public class Publisher extends Node implements Runnable {
                 @Override
                 public void run() {
                     while (flag) {
-                        System.out.println("1. Upload file. \n2. Write text.");
-                        Scanner scanner = new Scanner(System.in);
-                        String type = scanner.nextLine();
+                        //System.out.println("1. Upload file. \n2. Write text.");
+                        //Scanner scanner = new Scanner(System.in);
+                        //String type = scanner.nextLine();
                         switch (type) {
                             case "1":
                                 try {
@@ -127,7 +127,7 @@ public class Publisher extends Node implements Runnable {
                                 upload();
                                 break;
                             case "2":
-                                String msg = scanner.nextLine();
+                               // String msg = scanner.nextLine();
 
                                 try {
                                     // write on the output stream
@@ -157,6 +157,9 @@ public class Publisher extends Node implements Runnable {
         }
 
     }
+
+
+
 
     public void upload() {
         try {

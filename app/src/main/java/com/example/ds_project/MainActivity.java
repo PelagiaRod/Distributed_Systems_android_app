@@ -19,10 +19,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String EXTRA_SUBJECT = "com.example.ds_project.EXTRA_SUBJECT";
+    public static final String EXTRA_USERNAME = "com.example.ds_project.EXTRA_USERNAME";
 
     private ArrayList<String> data = new ArrayList<String>();
     Node node = new Node();
@@ -34,28 +37,29 @@ public class MainActivity extends AppCompatActivity {
         ListView lv = (ListView) findViewById(R.id.listview);
 
 
-        Publisher publisher = new Publisher("Publisher");
-        try {
-            publisher.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         generateListContent();
 
         lv.setAdapter(new MyListAdaper(this, R.layout.list_item, data));
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String subject = data.get(position);
+
+                String username = "Publisher";
+
                 Intent myIntent = new Intent(view.getContext(), TopicActivity.class);
+                myIntent.putExtra(EXTRA_SUBJECT, subject);
+                myIntent.putExtra(EXTRA_USERNAME, username);
                 startActivity(myIntent);
-                //TODO: change page and keep subject
+                //TODO: change page and keep subject -> ok
 
                 //TODO: 2nd page run consumer with parameter topic, show topic, messages from consumer
 
                 //publisher text input file input kalei push function prepei na pairnei parametro to message
 
 
-                Toast.makeText(MainActivity.this, "List item was clicked at " + position + data.get(position), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, "List item was clicked at " + position + data.get(position), Toast.LENGTH_SHORT).show();
             }
         });
     }
