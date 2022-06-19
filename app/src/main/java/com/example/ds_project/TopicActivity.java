@@ -1,7 +1,12 @@
 package com.example.ds_project;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -9,54 +14,32 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-//import com.example.ds_android_app.databinding.ActivityMainBinding;
-
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.Random;
 
 public class TopicActivity extends AppCompatActivity {
-    private AppBarConfiguration appBarConfiguration;
-    //private ActivityMainBinding binding;
+    //public static final String EXTRA_INPUTMESSAGE = "";
 
-    //paradeigma lab
-    TextView status;
-    EditText sleep;
-    private static final int UPDATE_PROGRESS = 1;
-    private static final int FINAL_RESULT = 2;
+    EditText msg;
+    Publisher publisher;
+    String subject;
+    String username;
+    Consumer consumer;
+    TextView textView;
+    TextView inputmessage;
+   // String usermessage;
+   // String newmessage;
 
-    @SuppressLint("HandlerLeak")
-    private final Handler myHandler = new Handler() {
-        //h handleMessage pairnei ena mhnyma, to what
-        public void handleMessage(Message msg) {
-            try{    //analogws to mhnyma kane thn analogh douleia
-                int what = msg.what;
-
-                Object obj = msg.obj;
-                if (what == UPDATE_PROGRESS){
-
-                    status.setText("Stage 1");
-
-
-                }else if (what == FINAL_RESULT){
-                    status.setText((String)obj);
-                }
-
-                Log.d("MY_TAG","Msg.what:"+ msg.what);
-
-            }catch (Exception exp){
-                Log.d("MY_TAG",exp.getMessage());
-            }
-
-        }
-    };
+    String message;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,28 +47,24 @@ public class TopicActivity extends AppCompatActivity {
         setContentView(R.layout.activity_topic);
 
         Intent myIntent = getIntent();
-        String subject = myIntent.getStringExtra(MainActivity.EXTRA_SUBJECT);
-        String username = myIntent.getStringExtra(MainActivity.EXTRA_USERNAME);
+        subject = myIntent.getStringExtra(MainActivity.EXTRA_SUBJECT);
+        username = myIntent.getStringExtra(MainActivity.EXTRA_USERNAME);
+        //usermessage = myIntent.getStringExtra(this.EXTRA_INPUTMESSAGE);
 
-        Publisher publisher = new Publisher(username);
+        publisher = new Publisher(username);
+        consumer = new Consumer(username);
 
-        Consumer consumer = new Consumer(username);
-
-        TextView textView = (TextView) findViewById(R.id.textView);
+        textView = (TextView) findViewById(R.id.textView);
         textView.setText(subject);
 
-        EditText msg = (EditText) findViewById(R.id.writeMessage);
+        msg = (EditText) findViewById(R.id.writeMessage);
+
+        inputmessage = (TextView) findViewById(R.id.input_message);
+        //inputmessage.setText(usermessage);
 
         ImageButton imgMsg = (ImageButton) findViewById(R.id.get_file);
         imgMsg.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-
-                try {
-                    publisher.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
                 publisher.push(subject, "1", "Image");
                 Intent myIntent = new Intent(view.getContext(), TopicActivity.class);
                 startActivity(myIntent);
@@ -93,48 +72,131 @@ public class TopicActivity extends AppCompatActivity {
 
         });
 
-        //TODO: keep list of consumers for each topic
         ImageButton textMsg = (ImageButton) findViewById(R.id.sendMsg);
         textMsg.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-
-                String message = msg.getText().toString();
-
-                System.out.println("ok " + message);
-
-                try {
-                    publisher.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                publisher.push(subject, "2", message);
-                //Intent myIntent = new Intent(view.getContext(), TopicActivity.class);
-                //startActivity(myIntent);
+                //This is the async task
+                PublisherHandle publisherHanle = new PublisherHandle();
+                publisherHanle.execute();
             }
         });
 
         ImageButton refresh = (ImageButton) findViewById(R.id.refresh);
         refresh.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                try {
-                    System.out.println("ok");
 
-                    consumer.pull(subject);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-
-                TextView textView = (TextView) findViewById(R.id.input_message);
-                textView.setText(subject);
+                ConsumerHandle consumerHandle = new ConsumerHandle();
+                consumerHandle.execute();
 
             }
-
         });
+    }
+
+    private class PublisherHandle extends AsyncTask<Void,String,String> {
+        ProgressDialog progressDialog;
+
+        public PublisherHandle(){
+        }
+
+        @Override
+        protected String doInBackground(Void... args) {
+            String message = msg.getText().toString();
+
+            System.out.println("ok " + message);
+
+            try {
+                publisher.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            publisher.push(subject, "2", message);
+            return message;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(TopicActivity.this,
+                    "Please wait...",
+                    "Connecting to server...");
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            //This runs on the UI thread
+            // execution of result of Long time consuming operation
+            progressDialog.dismiss();
+            //newmessage = inputmessage + "\n" +result;
+            //Intent myIntent = new Intent(view.getContext(), TopicActivity.class);
+            //myIntent.putExtra(EXTRA_INPUTMESSAGE, newmessage);
+            //startActivity(myIntent);
+            //inputmessage.setText(newmessage);
+            //Log.d("MY_TAG","TEST");
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            //UI thread
+            Toast.makeText(TopicActivity.this, "Progress: "+values[0], Toast.LENGTH_LONG).show();
+        }
+    }
 
 
+    private class ConsumerHandle extends AsyncTask<Void,String,String> {
+        ProgressDialog progressDialog;
 
+        public ConsumerHandle(){
+        }
+
+        @Override
+        protected String doInBackground(Void... args) {
+            message = "---> NOT OK";
+            try {
+
+
+                consumer.start();
+
+               // message = "--> OK";
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                System.out.println("////////////// -- subject "+ subject);
+                message = consumer.pull(subject);
+                System.out.println("//////////////" +message);
+            } catch (IOException | InterruptedException e) {
+                System.out.println("////////////// -- nope");
+                e.printStackTrace();
+            }
+            return message;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(TopicActivity.this,
+                    "Please wait...",
+                    "Connecting to server...");
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            //This runs on the UI thread
+            // execution of result of Long time consuming operation
+            progressDialog.dismiss();
+
+            //newmessage = inputmessage + "\n" + result;
+            //Intent myIntent = new Intent(view.getContext(), TopicActivity.class);
+            //myIntent.putExtra(EXTRA_INPUTMESSAGE, newmessage);
+            //startActivity(myIntent);
+            inputmessage.setText(result);
+            Log.d("MY_TAG","TEST");
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            //UI thread
+            Toast.makeText(TopicActivity.this, "Progress: "+values[0], Toast.LENGTH_LONG).show();
+        }
     }
 }

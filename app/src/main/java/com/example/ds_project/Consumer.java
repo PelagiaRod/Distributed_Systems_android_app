@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.CountDownLatch;
 
 /*
 import models.ProfileName;
@@ -57,7 +58,7 @@ public class Consumer extends Node implements Runnable {
     // TODO CONNECT TO FIRST RANDOM BROKER AND BROKER SEND BROKERS LIST WITH TOPICS
     // AND SELECT THE RIGHT BROKER TO CONNECT
     public void start() throws UnknownHostException, IOException {
-
+/*
         System.out.println("--Topics--");
         for (Topic topic : topics) {
             System.out.println(topic.getChannelName());
@@ -73,43 +74,58 @@ public class Consumer extends Node implements Runnable {
                 pull(subject);
                 break;
             }
-        }
-    }
-
-    public synchronized void pull(String subject) throws IOException { //void
+        }*/
+        System.out.println("In start");
         client = new Socket(InetAddress.getByName(chatServer), 1234); //start()
         input = new DataInputStream(client.getInputStream());
         output = new DataOutputStream(client.getOutputStream());
+        System.out.println("Finish start");
+    }
+
+    public synchronized String pull(String subject) throws IOException, InterruptedException { //void
         // readMessage thread
-        /*
-        output.writeUTF(username);
+
+        final String[] msg = new String[1];
+        msg[0] = "";
+        output.writeUTF("Subscriber");
         output.writeUTF(subject);
         output.writeUTF("subscriber");
 
-         */
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        System.out.println("Pull");
+
+        //TODO: PASS ALL STRINGS TO TOPICACTIVITY
         Thread readMessage = new Thread(new Runnable() {
             @Override
             public void run() {
+                System.out.println("In thread");
                 /*
                 try {
                     output.writeUTF("BrokersList");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }*/
-               // while (true) { //runs when refresh button is pressed
+                //while (true) { //runs when refresh button is pressed
                     try {
                         // read the message sent to this client
-                        String msg = input.readUTF();
-                        System.out.println("----->" + msg);
+                        //String message = input.readUTF();
+                        msg[0] = input.readUTF();
+                        //msg[0] = msg[0] + "\n" + message;
+                        latch.countDown();
+                        System.out.println("----->" + msg[0]);
                         //return msg;
                     } catch (IOException e) {
+                        System.out.println("----->Exception");
                         e.printStackTrace();
                         return;
                     }
-               // }
+                //}
             }
         });
         readMessage.start();
+        latch.await();
+        return msg[0];
     }
 
 }

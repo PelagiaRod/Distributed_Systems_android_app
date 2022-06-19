@@ -346,9 +346,9 @@ public class Broker extends Node {
                     }
                 }
             }
-            while (true) {
+         //   while (true) {
                 // RUN CONTINIOUSLY UNTIL IDENTIFY CHANGE IN TOPICS QUEUE
-                if (isChanged) {
+               // if (isChanged) {
                     topicsMessages = brokers.get(brokerIndex).topicsQueue.get(this.topic);
                     try {
                         if (topicsMessages.size() == initCount) {
@@ -364,8 +364,8 @@ public class Broker extends Node {
                         return;
                     }
 
-                }
-            }
+               // }
+           // }
 
             // }
 

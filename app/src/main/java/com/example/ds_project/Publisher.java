@@ -45,16 +45,17 @@ public class Publisher extends Node implements Runnable {
     // TODO CONNECT TO RIGHT BROKER
     // AND PUSH DATA TO BROKER`S QUEUE
     public void start() throws UnknownHostException, IOException {
+        //if (!flag)
+            //disconnect();
 
-                client = new Socket(InetAddress.getByName(chatServer), 1234);
-                input = new DataInputStream(client.getInputStream());
-                output = new DataOutputStream(client.getOutputStream());
+         client = new Socket(InetAddress.getByName(chatServer), 1234);   //"192.168.1.190"
+         input = new DataInputStream(client.getInputStream());
+         output = new DataOutputStream(client.getOutputStream());
 
-                if (!flag)
-                    disconnect();
+
     }
 
-    private void disconnect() {
+    public void disconnect() {  //was private
         System.out.println("\nClosing connection");
         try {
             output.close();
@@ -80,19 +81,6 @@ public class Publisher extends Node implements Runnable {
         return this.connectedBrokers;
     }
 
-    // TODO
-    // void hashTopic(String topic) {
-    // Broker nd = new Broker();
-    // // Broker broker = new Broker();
-    // for (NodeNew brok : nd.brokers) {
-    // if (this.profileName.getUserVideoFilesMap().containsValue(topic))
-
-    // {
-
-    // }
-    // }
-    // }
-
     void notifyBrokersNewMessage(String message) {
 
     }
@@ -113,7 +101,7 @@ public class Publisher extends Node implements Runnable {
             Thread sendMessage = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    while (flag) {
+                   // while (flag) {
                         //System.out.println("1. Upload file. \n2. Write text.");
                         //Scanner scanner = new Scanner(System.in);
                         //String type = scanner.nextLine();
@@ -133,19 +121,21 @@ public class Publisher extends Node implements Runnable {
                                     // write on the output stream
                                     output.writeUTF("2");
                                     output.writeUTF(username + "#" + msg);
+                                   // flag = false;
+                                    break;
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
                                 break;
                             case "exit":
-                                flag = false;
+                                //flag = false;
                                 break;
                             default:
                                 System.out.println("You must select either 1 or 2");
                                 System.out.println("Or say 'exit' to close connection");
                                 break;
                         }
-                    }
+                  //  }
                 }
 
             });
