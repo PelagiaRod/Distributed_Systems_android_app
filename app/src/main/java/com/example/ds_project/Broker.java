@@ -186,86 +186,87 @@ public class Broker extends Node {
 
         @Override
         public void run() {
-
+            System.out.println("In publisher handler");
             String received;
-            while (true) {
-                try {
-                    String type = dis.readUTF();
+            //while (true) {
+            try {
+                String type = dis.readUTF();
 
-                    if (!hasBrokerThisTopic) {
-                        System.out.println("This topic is not available for this Broker");
-                        this.s.close();
-                        break;
-                    }
-                    Broker broker = brokers.get(brokerIndex);
-                    if (type.equals("1")) {
+                if (!hasBrokerThisTopic) {
+                    System.out.println("This topic is not available for this Broker");
+                    this.s.close();
+                    // break;
+                }
+                Broker broker = brokers.get(brokerIndex);
+                if (type.equals("1")) {
 
-                        int fileNameLength = dis.readInt();
+                    int fileNameLength = dis.readInt();
 
-                        if (fileNameLength > 0) {
-                            byte[] fileNameBytes = new byte[fileNameLength];
-                            dis.readFully(fileNameBytes, 0, fileNameBytes.length);
-                            String fileName = new String(fileNameBytes);
+                    if (fileNameLength > 0) {
+                        byte[] fileNameBytes = new byte[fileNameLength];
+                        dis.readFully(fileNameBytes, 0, fileNameBytes.length);
+                        String fileName = new String(fileNameBytes);
 
-                            int fileContentLength = dis.readInt();
+                        int fileContentLength = dis.readInt();
 
-                            if (fileContentLength > 0) {
-                                byte[] fileContentBytes = new byte[fileContentLength];
-                                dis.readFully(fileContentBytes, 0, fileContentLength);
-                                File directory = new File(currDirectory + "\\data\\downloads");
-                                if (!directory.exists())
-                                    directory.mkdir();
+                        if (fileContentLength > 0) {
+                            byte[] fileContentBytes = new byte[fileContentLength];
+                            dis.readFully(fileContentBytes, 0, fileContentLength);
+                            File directory = new File(currDirectory + "\\data\\downloads");
+                            if (!directory.exists())
+                                directory.mkdir();
 
-                                File fileToDownload = new File(currDirectory + "\\data\\downloads\\" + fileName);
-                                try {
-                                    FileOutputStream fileOutputStream = new FileOutputStream(fileToDownload);
-                                    fileOutputStream.write(fileContentBytes);
-                                    fileOutputStream.close();
-                                } catch (IOException error) {
+                            File fileToDownload = new File(currDirectory + "\\data\\downloads\\" + fileName);
+                            try {
+                                FileOutputStream fileOutputStream = new FileOutputStream(fileToDownload);
+                                fileOutputStream.write(fileContentBytes);
+                                fileOutputStream.close();
+                            } catch (IOException error) {
 
-                                    error.printStackTrace();
-                                    return;
-                                }
+                                error.printStackTrace();
+                                return;
                             }
-                            if (broker.topicsQueue.get(this.topic) == null) {
-                                broker.topicsQueue.put(this.topic, new LinkedList<String>());
-                            }
-                            broker.topicsQueue.get(this.topic)
-                                    .add(this.name + " : File Upload Successful");
-                            isChanged = true;
                         }
-
-                    } else if (type.equals("2")) {
-
-                        // receive the string
-                        received = dis.readUTF();
-
-                        System.out.println(received);
-
-                        if (received.equals("logout")) {
-                            this.isloggedin = false;
-                            this.s.close();
-                            break;
-                        }
-
-                        // break the string into message and recipient part
-                        StringTokenizer st = new StringTokenizer(received, "#");
-                        String recipient = st.nextToken();
-                        String MsgToSend = st.nextToken();
-
                         if (broker.topicsQueue.get(this.topic) == null) {
                             broker.topicsQueue.put(this.topic, new LinkedList<String>());
                         }
-                        broker.topicsQueue.get(this.topic).add(this.name + " : " + MsgToSend);
+                        broker.topicsQueue.get(this.topic)
+                                .add(this.name + " : File Upload Successful");
                         isChanged = true;
                     }
-                } catch (IOException e) {
 
-                    e.printStackTrace();
-                    return;
+                } else if (type.equals("2")) {
+
+                    // receive the string
+                    received = dis.readUTF();
+
+                    System.out.println(received);
+
+                    if (received.equals("logout")) {
+                        this.isloggedin = false;
+                        this.s.close();
+                        // break;
+                    }
+
+                    // break the string into message and recipient part
+                    StringTokenizer st = new StringTokenizer(received, "#");
+                    String recipient = st.nextToken();
+                    String MsgToSend = st.nextToken();
+
+                    if (broker.topicsQueue.get(this.topic) == null) {
+                        broker.topicsQueue.put(this.topic, new LinkedList<String>());
+                    }
+                    broker.topicsQueue.get(this.topic).add(this.name + " : " + MsgToSend);
+                    System.out.println("------>"+broker.topicsQueue.get(this.topic));
+                    isChanged = true;
                 }
+            } catch (IOException e) {
 
+                e.printStackTrace();
+                return;
             }
+
+            // }
             // try {
             // // closing resources
             // this.dis.close();
@@ -293,6 +294,7 @@ public class Broker extends Node {
         // constructor
         public ConsumerHandler(Socket s, String name, String subject,
                                DataInputStream dis, DataOutputStream dos, Broker thisBroker) {
+            System.out.println("In consumer constructor");
             this.dis = dis;
             this.dos = dos;
             this.name = name;
@@ -311,6 +313,8 @@ public class Broker extends Node {
 
         @Override
         public void run() {
+            System.out.println("In consumer handler");
+			/*
             try {
                 String action = dis.readUTF();
                 if (action.equals("BrokersList")) {
@@ -329,7 +333,7 @@ public class Broker extends Node {
 
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
             int index = 0;
             Queue<String> topicsMessages = brokers.get(brokerIndex).topicsQueue.get(this.topic);
             int initCount = 0;
@@ -346,26 +350,26 @@ public class Broker extends Node {
                     }
                 }
             }
-         //   while (true) {
-                // RUN CONTINIOUSLY UNTIL IDENTIFY CHANGE IN TOPICS QUEUE
-               // if (isChanged) {
-                    topicsMessages = brokers.get(brokerIndex).topicsQueue.get(this.topic);
-                    try {
-                        if (topicsMessages.size() == initCount) {
-                        } else {
-                            String message = topicsMessages.toArray()[index].toString();
-                            this.dos.writeUTF(message);
-                            index += 1;
-                            initCount = topicsMessages.size();
-                        }
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return;
+            //while (true) {
+            // RUN CONTINIOUSLY UNTIL IDENTIFY CHANGE IN TOPICS QUEUE
+            if (isChanged) {
+                topicsMessages = brokers.get(brokerIndex).topicsQueue.get(this.topic);
+                try {
+                    if (topicsMessages.size() == initCount) {
+                    } else {
+                        String message = topicsMessages.toArray()[index].toString();
+                        this.dos.writeUTF(message);
+                        index += 1;
+                        initCount = topicsMessages.size();
                     }
 
-               // }
-           // }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+
+            }
+            //}
 
             // }
 
