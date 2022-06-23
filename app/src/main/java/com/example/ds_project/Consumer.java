@@ -57,7 +57,7 @@ public class Consumer extends Node implements Runnable {
 
     // TODO CONNECT TO FIRST RANDOM BROKER AND BROKER SEND BROKERS LIST WITH TOPICS
     // AND SELECT THE RIGHT BROKER TO CONNECT
-    public void start() throws UnknownHostException, IOException {
+    public void start(String subject) throws UnknownHostException, IOException, InterruptedException {
 /*
         System.out.println("--Topics--");
         for (Topic topic : topics) {
@@ -80,13 +80,15 @@ public class Consumer extends Node implements Runnable {
         input = new DataInputStream(client.getInputStream());
         output = new DataOutputStream(client.getOutputStream());
         System.out.println("Finish start");
+
+
     }
 
     public synchronized String pull(String subject) throws IOException, InterruptedException { //void
         // readMessage thread
 
         final String[] msg = new String[1];
-        msg[0] = "";
+        msg[0] = "\n";
         output.writeUTF("Subscriber");
         output.writeUTF(subject);
         output.writeUTF("subscriber");
@@ -100,13 +102,13 @@ public class Consumer extends Node implements Runnable {
             @Override
             public void run() {
                 System.out.println("In thread");
-                /*
+
                 try {
                     output.writeUTF("BrokersList");
                 } catch (IOException e) {
                     e.printStackTrace();
-                }*/
-                //while (true) { //runs when refresh button is pressed
+                }
+                while (true) { //runs when refresh button is pressed
                     try {
                         // read the message sent to this client
                         //String message = input.readUTF();
@@ -120,7 +122,7 @@ public class Consumer extends Node implements Runnable {
                         e.printStackTrace();
                         return;
                     }
-                //}
+                }
             }
         });
         readMessage.start();

@@ -1,13 +1,21 @@
 package com.example.ds_project;
 // import javafx.util.Pair;
+import android.net.Uri;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,8 +53,8 @@ public class Publisher extends Node implements Runnable {
     // TODO CONNECT TO RIGHT BROKER
     // AND PUSH DATA TO BROKER`S QUEUE
     public void start() throws UnknownHostException, IOException {
-        //if (!flag)
-            //disconnect();
+        if (!flag)
+            disconnect();
 
          client = new Socket(InetAddress.getByName(chatServer), 1234);   //"192.168.1.190"
          input = new DataInputStream(client.getInputStream());
@@ -99,6 +107,7 @@ public class Publisher extends Node implements Runnable {
 
             // sendMessage thread
             Thread sendMessage = new Thread(new Runnable() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
                 @Override
                 public void run() {
                    // while (flag) {
@@ -112,7 +121,7 @@ public class Publisher extends Node implements Runnable {
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
-                                upload();
+                                upload(msg);
                                 break;
                             case "2":
                                // String msg = scanner.nextLine();
@@ -151,8 +160,11 @@ public class Publisher extends Node implements Runnable {
 
 
 
-    public void upload() {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void upload(String file_to_upload)  {
+
         try {
+            /*
             String contents[] = mediaDirectory.list();
             for (String name : contents) {
                 System.out.println(name);
@@ -167,11 +179,16 @@ public class Publisher extends Node implements Runnable {
                 } else {
                     break;
                 }
-            }
+            } */
             // Value value = new Value(new MultimediaFile(fileName));
+            //Uri myUri = Uri.parse(file_to_upload);
+            FileInputStream fileInputStream = new FileInputStream(file_to_upload); //(mediaDirectory + "\\" + fileName)
+            File file = new File(file_to_upload);
 
-            FileInputStream fileInputStream = new FileInputStream(mediaDirectory + "\\" + fileName);
-            File file = new File(mediaDirectory + "\\" + fileName);
+            Path path = Paths.get(file_to_upload);
+
+            // call getFileName() and get FileName path object
+            String fileName = path.getFileName().toString();
 
             byte[] fileNameBytes = fileName.getBytes(); // StandardCharsets.UTF_8
 

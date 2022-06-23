@@ -188,14 +188,14 @@ public class Broker extends Node {
         public void run() {
             System.out.println("In publisher handler");
             String received;
-            //while (true) {
+            // while (true) {
             try {
                 String type = dis.readUTF();
 
                 if (!hasBrokerThisTopic) {
                     System.out.println("This topic is not available for this Broker");
                     this.s.close();
-                    // break;
+                    //break;
                 }
                 Broker broker = brokers.get(brokerIndex);
                 if (type.equals("1")) {
@@ -245,7 +245,7 @@ public class Broker extends Node {
                     if (received.equals("logout")) {
                         this.isloggedin = false;
                         this.s.close();
-                        // break;
+                        //break;
                     }
 
                     // break the string into message and recipient part
@@ -305,6 +305,7 @@ public class Broker extends Node {
                 if (c.getChannelName().equals(subject)) {
                     this.topic = c;
                     hasBrokerThisTopic = true;
+                    System.out.println("Subject name --> " + c.getChannelName());
                     break;
                 }
             }
@@ -314,16 +315,18 @@ public class Broker extends Node {
         @Override
         public void run() {
             System.out.println("In consumer handler");
-			/*
+
             try {
                 String action = dis.readUTF();
                 if (action.equals("BrokersList")) {
                     for (Broker br : brokers) {
-                        dos.writeUTF(br.name);
+                        //dos.writeUTF(br.name);
+                        System.out.println("br.name --> " + br.name);
                         for (Topic c : br.linkedTopics) {
-                            dos.writeUTF("#" + c.getChannelName());
+                            //dos.writeUTF("#" + c.getChannelName());
+                            System.out.println("c.getChannelName() --> " + c.getChannelName());
                         }
-                        dos.writeUTF("---------------------");
+                        // dos.writeUTF("---------------------");
                     }
                 }
                 if (!hasBrokerThisTopic) {
@@ -333,43 +336,56 @@ public class Broker extends Node {
 
             } catch (IOException e) {
                 e.printStackTrace();
-            }*/
+            }
             int index = 0;
+            String message_to_send = "";
             Queue<String> topicsMessages = brokers.get(brokerIndex).topicsQueue.get(this.topic);
             int initCount = 0;
             if (topicsMessages != null) {
                 initCount = topicsMessages.size();
                 for (String tM : topicsMessages) {
 
-                    try {
-                        index++;
-                        this.dos.writeUTF(tM);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return;
-                    }
-                }
-            }
-            //while (true) {
-            // RUN CONTINIOUSLY UNTIL IDENTIFY CHANGE IN TOPICS QUEUE
-            if (isChanged) {
-                topicsMessages = brokers.get(brokerIndex).topicsQueue.get(this.topic);
-                try {
-                    if (topicsMessages.size() == initCount) {
-                    } else {
-                        String message = topicsMessages.toArray()[index].toString();
-                        this.dos.writeUTF(message);
-                        index += 1;
-                        initCount = topicsMessages.size();
-                    }
+                    // try {
+                    index++;
+                    message_to_send =message_to_send +"\n" +tM+"\n";
+                    System.out.println("~~~~~~~~~"+tM);
+                    //this.dos.writeUTF(tM);
+                    // } catch (IOException e) {
+                    //   e.printStackTrace();
+                    //   return;
+                    // }
 
-                } catch (IOException e) {
+
+                }
+                try{
+                    this.dos.writeUTF(message_to_send);
+                }catch (IOException e) {
                     e.printStackTrace();
                     return;
                 }
-
             }
-            //}
+            // while (true) {
+            // RUN CONTINIOUSLY UNTIL IDENTIFY CHANGE IN TOPICS QUEUE
+            //if (isChanged) {
+            topicsMessages = brokers.get(brokerIndex).topicsQueue.get(this.topic);
+            // try {
+            if (topicsMessages.size() == initCount) {
+            } else {
+                //String message = topicsMessages.toArray()[index].toString();
+                String message = topicsMessages.toString();
+                System.out.println("~~~~message~~~~~"+message);
+                //this.dos.writeUTF(message);
+                //index += 1;
+                initCount = topicsMessages.size();
+            }
+
+            // } catch (IOException e) {
+            //    e.printStackTrace();
+            //     return;
+            // }
+
+            // }
+            //   }
 
             // }
 
