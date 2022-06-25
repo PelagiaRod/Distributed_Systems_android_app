@@ -114,21 +114,23 @@ public class Consumer extends Node implements Runnable {
                 while (true) { //runs when refresh button is pressed
                     try {
                         int type = input.readInt();
-                        if (type == 1){
+                        if (type == 1) {
+                           // while(true){
+                            System.out.println("------>DOWNLOAD STARTED");
                             //TODO:NOT WORKING CORRECTLY
                             int fileNameLength = input.readInt();
-
                             if (fileNameLength > 0) {
                                 byte[] fileNameBytes = new byte[fileNameLength];
                                 input.readFully(fileNameBytes, 0, fileNameBytes.length);
                                 String fileName = new String(fileNameBytes);
 
                                 int fileContentLength = input.readInt();
-
+                                System.out.println("------>FILE_CONTENT_LENGTH " + fileContentLength);
                                 if (fileContentLength > 0) {
                                     byte[] fileContentBytes = new byte[fileContentLength];
+                                    System.out.println("------>VIDEO IS ABOUT TO BE DOWNLOADED");
                                     input.readFully(fileContentBytes, 0, fileContentLength);
-                                    String rootDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                                    String rootDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS+ "/downloaded_videos")
                                             + File.separator + fileName;
                                     //---------------//
 //                                    String rootDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
@@ -136,15 +138,18 @@ public class Consumer extends Node implements Runnable {
 //                                    File rootFile = new File(rootDir);
 //                                    rootFile.mkdir();
                                     //-----------------//
-                                    File directory = new File(String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)));
+                                    File directory = new File(String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS+ "/downloaded_videos")));
+                                    //File directory = new File(getApplicationContext().getFilesDir() + "/downloaded_songs");
                                     if (!directory.exists())
                                         directory.mkdir();
-
+                                    System.out.println("------>VIDEO IS ABOUT TO BE SAVED");
                                     File fileToDownload = new File(rootDir);
                                     try {
                                         FileOutputStream fileOutputStream = new FileOutputStream(fileToDownload);
                                         fileOutputStream.write(fileContentBytes);
                                         fileOutputStream.close();
+                                        System.out.println("------>FILE OK");
+                                        latch.countDown();
                                     } catch (IOException error) {
 
                                         error.printStackTrace();
@@ -152,13 +157,18 @@ public class Consumer extends Node implements Runnable {
                                     }
                                 }
                             }
+//                            else {
+//                                break;
+//                            }
+
+                     //   }
                         } else if (type==2) {
                             // read the message sent to this client
                             //String message = input.readUTF();
                             msg[0] = input.readUTF();
                             //msg[0] = msg[0] + "\n" + message;
                             latch.countDown();
-                            System.out.println("----->" + msg[0]);
+                            //System.out.println("----->" + msg[0]);
                             //return msg;
                         }
                     } catch (IOException e) {

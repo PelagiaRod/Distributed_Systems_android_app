@@ -164,7 +164,7 @@ public class Publisher extends Node implements Runnable {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void upload(String file_to_upload)  {
-System.out.println("file_to_upload----> "+file_to_upload);
+    System.out.println("file_to_upload----> "+file_to_upload);
         try {
             /*
             String contents[] = mediaDirectory.list();
@@ -182,7 +182,7 @@ System.out.println("file_to_upload----> "+file_to_upload);
                     break;
                 }
             } */
-            // Value value = new Value(new MultimediaFile(fileName));
+            //Value value = new Value(new MultimediaFile(fileName));
             //Uri myUri = Uri.parse(file_to_upload);
             FileInputStream fileInputStream = new FileInputStream(file_to_upload); //(mediaDirectory + "\\" + fileName)
             File file = new File(file_to_upload);
@@ -191,7 +191,7 @@ System.out.println("file_to_upload----> "+file_to_upload);
 
             // call getFileName() and get FileName path object
             String fileName = path.getFileName().toString();
-            System.out.println("----->filename: "+ fileName);
+            //System.out.println("----->filename: "+ fileName);
             byte[] fileNameBytes = fileName.getBytes(); // StandardCharsets.UTF_8
 
             int count;

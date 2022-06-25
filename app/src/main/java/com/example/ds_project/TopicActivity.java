@@ -39,6 +39,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 
 public class TopicActivity extends AppCompatActivity {
@@ -290,6 +291,7 @@ public class TopicActivity extends AppCompatActivity {
         }
 
     }
+
 
     public String getPath(Uri uri) {
         Cursor cursor = getContentResolver().query(uri, null, null, null, null);
