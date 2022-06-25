@@ -117,11 +117,13 @@ public class Publisher extends Node implements Runnable {
                         switch (type) {
                             case "1":
                                 try {
+                                    System.out.println("----->msg: "+ msg);
                                     output.writeUTF("1");
+                                    upload(msg);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
-                                upload(msg);
+                                //upload(msg);
                                 break;
                             case "2":
                                // String msg = scanner.nextLine();
@@ -162,7 +164,7 @@ public class Publisher extends Node implements Runnable {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void upload(String file_to_upload)  {
-
+System.out.println("file_to_upload----> "+file_to_upload);
         try {
             /*
             String contents[] = mediaDirectory.list();
@@ -189,7 +191,7 @@ public class Publisher extends Node implements Runnable {
 
             // call getFileName() and get FileName path object
             String fileName = path.getFileName().toString();
-
+            System.out.println("----->filename: "+ fileName);
             byte[] fileNameBytes = fileName.getBytes(); // StandardCharsets.UTF_8
 
             int count;

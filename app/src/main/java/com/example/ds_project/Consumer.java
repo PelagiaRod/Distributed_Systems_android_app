@@ -1,9 +1,12 @@
 package com.example.ds_project;
 
+import android.os.Environment;
 import android.widget.TextView;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -110,13 +113,54 @@ public class Consumer extends Node implements Runnable {
                 }
                 while (true) { //runs when refresh button is pressed
                     try {
-                        // read the message sent to this client
-                        //String message = input.readUTF();
-                        msg[0] = input.readUTF();
-                        //msg[0] = msg[0] + "\n" + message;
-                        latch.countDown();
-                        System.out.println("----->" + msg[0]);
-                        //return msg;
+                        int type = input.readInt();
+                        if (type == 1){
+                            //TODO:NOT WORKING CORRECTLY
+                            int fileNameLength = input.readInt();
+
+                            if (fileNameLength > 0) {
+                                byte[] fileNameBytes = new byte[fileNameLength];
+                                input.readFully(fileNameBytes, 0, fileNameBytes.length);
+                                String fileName = new String(fileNameBytes);
+
+                                int fileContentLength = input.readInt();
+
+                                if (fileContentLength > 0) {
+                                    byte[] fileContentBytes = new byte[fileContentLength];
+                                    input.readFully(fileContentBytes, 0, fileContentLength);
+                                    String rootDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                                            + File.separator + fileName;
+                                    //---------------//
+//                                    String rootDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+//                                            + File.separator + "Awesome_Wp_Video";
+//                                    File rootFile = new File(rootDir);
+//                                    rootFile.mkdir();
+                                    //-----------------//
+                                    File directory = new File(String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)));
+                                    if (!directory.exists())
+                                        directory.mkdir();
+
+                                    File fileToDownload = new File(rootDir);
+                                    try {
+                                        FileOutputStream fileOutputStream = new FileOutputStream(fileToDownload);
+                                        fileOutputStream.write(fileContentBytes);
+                                        fileOutputStream.close();
+                                    } catch (IOException error) {
+
+                                        error.printStackTrace();
+                                        return;
+                                    }
+                                }
+                            }
+                        } else if (type==2) {
+                            // read the message sent to this client
+                            //String message = input.readUTF();
+                            msg[0] = input.readUTF();
+                            //msg[0] = msg[0] + "\n" + message;
+                            latch.countDown();
+                            System.out.println("----->" + msg[0]);
+                            //return msg;
+                        }
                     } catch (IOException e) {
                         System.out.println("----->Exception");
                         e.printStackTrace();

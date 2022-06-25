@@ -22,6 +22,7 @@ public class Broker extends Node {
     int brokerIndex;
     int hashValue;
     public HashMap<Topic, Queue<String>> topicsQueue = new HashMap<>();
+    public HashMap<Topic, Queue<String>> mediaQueue = new HashMap<>();
     List<Topic> linkedTopics = new ArrayList<Topic>(); // hashmap == queue
     private static File currDirectory = new File(new File("").getAbsolutePath());
     boolean isChanged = false;
@@ -188,6 +189,7 @@ public class Broker extends Node {
         public void run() {
             System.out.println("In publisher handler");
             String received;
+
             // while (true) {
             try {
                 String type = dis.readUTF();
@@ -199,9 +201,9 @@ public class Broker extends Node {
                 }
                 Broker broker = brokers.get(brokerIndex);
                 if (type.equals("1")) {
-
+                    System.out.println("TYPE 1\n");
                     int fileNameLength = dis.readInt();
-
+                    System.out.println("int length: "+ fileNameLength);
                     if (fileNameLength > 0) {
                         byte[] fileNameBytes = new byte[fileNameLength];
                         dis.readFully(fileNameBytes, 0, fileNameBytes.length);
@@ -212,28 +214,52 @@ public class Broker extends Node {
                         if (fileContentLength > 0) {
                             byte[] fileContentBytes = new byte[fileContentLength];
                             dis.readFully(fileContentBytes, 0, fileContentLength);
-                            File directory = new File(currDirectory + "\\data\\downloads");
-                            if (!directory.exists())
-                                directory.mkdir();
+                            String string_from_bytes = new String(fileContentBytes);
+                            //System.out.println("String from bytes: " + string_from_bytes);
 
-                            File fileToDownload = new File(currDirectory + "\\data\\downloads\\" + fileName);
-                            try {
-                                FileOutputStream fileOutputStream = new FileOutputStream(fileToDownload);
-                                fileOutputStream.write(fileContentBytes);
-                                fileOutputStream.close();
-                            } catch (IOException error) {
-
-                                error.printStackTrace();
-                                return;
+                            if (broker.mediaQueue.get(this.topic) == null) {
+                                broker.mediaQueue.put(this.topic, new LinkedList<String>());
                             }
+                            broker.mediaQueue.get(this.topic).add(this.name + " : " + fileName + " : " + string_from_bytes);
+                            //System.out.println("------>"+broker.topicsQueue.get(this.topic));
                         }
-                        if (broker.topicsQueue.get(this.topic) == null) {
-                            broker.topicsQueue.put(this.topic, new LinkedList<String>());
-                        }
-                        broker.topicsQueue.get(this.topic)
-                                .add(this.name + " : File Upload Successful");
-                        isChanged = true;
                     }
+
+                        /*
+                        int fileNameLength = dis.readInt();
+
+                        if (fileNameLength > 0) {
+                            byte[] fileNameBytes = new byte[fileNameLength];
+                            dis.readFully(fileNameBytes, 0, fileNameBytes.length);
+                            String fileName = new String(fileNameBytes);
+
+                            int fileContentLength = dis.readInt();
+
+                            if (fileContentLength > 0) {
+                                byte[] fileContentBytes = new byte[fileContentLength];
+                                dis.readFully(fileContentBytes, 0, fileContentLength);
+                                File directory = new File(currDirectory + "\\data\\downloads");
+                                if (!directory.exists())
+                                    directory.mkdir();
+
+                                File fileToDownload = new File(currDirectory + "\\data\\downloads\\" + fileName);
+                                try {
+                                    FileOutputStream fileOutputStream = new FileOutputStream(fileToDownload);
+                                    fileOutputStream.write(fileContentBytes);
+                                    fileOutputStream.close();
+                                } catch (IOException error) {
+
+                                    error.printStackTrace();
+                                    return;
+                                }
+                            }
+                            if (broker.topicsQueue.get(this.topic) == null) {
+                                broker.topicsQueue.put(this.topic, new LinkedList<String>());
+                            }
+                            broker.topicsQueue.get(this.topic)
+                                    .add(this.name + " : File Upload Successful");
+                            isChanged = true;
+                        } */
 
                 } else if (type.equals("2")) {
 
@@ -305,7 +331,7 @@ public class Broker extends Node {
                 if (c.getChannelName().equals(subject)) {
                     this.topic = c;
                     hasBrokerThisTopic = true;
-                    System.out.println("Subject name --> " + c.getChannelName());
+                    //System.out.println("Subject name --> " + c.getChannelName());
                     break;
                 }
             }
@@ -321,10 +347,10 @@ public class Broker extends Node {
                 if (action.equals("BrokersList")) {
                     for (Broker br : brokers) {
                         //dos.writeUTF(br.name);
-                        System.out.println("br.name --> " + br.name);
+                        //System.out.println("br.name --> " + br.name);
                         for (Topic c : br.linkedTopics) {
                             //dos.writeUTF("#" + c.getChannelName());
-                            System.out.println("c.getChannelName() --> " + c.getChannelName());
+                            // System.out.println("c.getChannelName() --> " + c.getChannelName());
                         }
                         // dos.writeUTF("---------------------");
                     }
@@ -348,22 +374,79 @@ public class Broker extends Node {
                     // try {
                     index++;
                     message_to_send =message_to_send +"\n" +tM+"\n";
-                    System.out.println("~~~~~~~~~"+tM);
+                    //System.out.println("~~~~~~~~~"+tM);
                     //this.dos.writeUTF(tM);
                     // } catch (IOException e) {
                     //   e.printStackTrace();
                     //   return;
                     // }
-
-
                 }
                 try{
+                    this.dos.writeInt(2);
                     this.dos.writeUTF(message_to_send);
                 }catch (IOException e) {
                     e.printStackTrace();
                     return;
                 }
             }
+
+            //---------------------------------------------//
+
+            Queue<String> mediaMessages = brokers.get(brokerIndex).mediaQueue.get(this.topic);
+            //int count = 0;
+            if (mediaMessages != null) {
+                // count = mediaMessages.size();
+                for (String tM : mediaMessages) {
+                    try {
+                        this.dos.writeInt(1);
+
+                        StringTokenizer st = new StringTokenizer(tM, ":");
+                        String sender = st.nextToken();
+                        String fileName = st.nextToken();
+                        String MsgToSend = st.nextToken();
+                    /*
+                    FileInputStream fileInputStream = new FileInputStream(file_to_upload); //(mediaDirectory + "\\" + fileName)
+                    File file = new File(file_to_upload);
+
+                    Path path = Paths.get(file_to_upload);
+
+                    // call getFileName() and get FileName path object
+                    String fileName = path.getFileName().toString();
+                    */
+
+                        byte[] fileNameBytes = fileName.getBytes(); // StandardCharsets.UTF_8
+
+                        int count;
+                        dos.writeInt(fileNameBytes.length);
+                        dos.write(fileNameBytes);
+
+                        byte[] fileContentBytes = new byte[MsgToSend.length()];
+                        dos.writeInt(fileContentBytes.length);
+
+                        // break in chunks and send file
+                        while ((count = MsgToSend.length()) > 0) {
+                            dos.write(fileContentBytes, 0, count);
+                        }
+                        dos.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                /*
+                try{
+                    this.dos.writeInt(1);
+                    this.dos.writeUTF(message_to_send);
+                }catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }*/
+            }
+
+            //-------------------------------------------------------------------//
+
+
+
+
             // while (true) {
             // RUN CONTINIOUSLY UNTIL IDENTIFY CHANGE IN TOPICS QUEUE
             //if (isChanged) {
@@ -473,6 +556,5 @@ public class Broker extends Node {
     }
 
 
-
-
+    
 }

@@ -129,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public class ViewHolder {
-
         ImageView thumbnail;
         TextView title;
         Button button;
