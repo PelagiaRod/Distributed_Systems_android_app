@@ -20,6 +20,9 @@
         android:theme="@style/Theme.DS_Project"
         tools:targetApi="31">
         <activity
+            android:name=".First_Activity"
+            android:exported="false" />
+        <activity
             android:name=".TopicActivity"
             android:exported="false" />
         <activity

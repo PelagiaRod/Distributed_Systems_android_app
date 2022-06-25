@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.graphics.Color;
+
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +18,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.EditText;
+
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -24,113 +28,67 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String EXTRA_SUBJECT = "com.example.ds_project.EXTRA_SUBJECT";
-    public static final String EXTRA_USERNAME = "com.example.ds_project.EXTRA_USERNAME";
 
-    private ArrayList<String> data = new ArrayList<String>();
-    Node node = new Node();
+    Button loginBtn, cancelBtn;
+    EditText passEnter, nameEnter;
+    TextView usernameText, passText, errTxt;
+    int counter = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ListView lv = (ListView) findViewById(R.id.listview);
+
+        loginBtn = (Button)findViewById(R.id.loginBtn);
+        cancelBtn = (Button)findViewById(R.id.cancelBtn);
+        nameEnter = (EditText)findViewById(R.id.nameEnter);
+        passEnter = (EditText)findViewById(R.id.passEnter);
+        usernameText = (TextView)findViewById(R.id.usernameText);
+        passText = (TextView)findViewById(R.id.passText);
 
 
+        errTxt = (TextView)findViewById(R.id.errTxt);
+        errTxt.setVisibility(View.GONE);
 
-        generateListContent();
-
-        lv.setAdapter(new MyListAdaper(this, R.layout.list_item, data));
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String subject = data.get(position);
+            public void onClick(View v) {
+                if(nameEnter.getText().toString().equals("admin") &&
+                        passEnter.getText().toString().equals("admin")) {
+                    Toast.makeText(getApplicationContext(), "Wrong Credentials",Toast.LENGTH_SHORT).show();
 
-                String username = "Publisher";
+                    errTxt.setVisibility(View.VISIBLE);
+                    errTxt.setBackgroundColor(Color.RED);
+                    counter--;
+                    errTxt.setText(Integer.toString(counter));
 
-                Intent myIntent = new Intent(view.getContext(), TopicActivity.class);
-                myIntent.putExtra(EXTRA_SUBJECT, subject);
-                myIntent.putExtra(EXTRA_USERNAME, username);
-                startActivity(myIntent);
-                //TODO: change page and keep subject -> ok
+                    if (counter == 0) {
+                        loginBtn.setEnabled(false);
+                    }
+                }
 
-                //TODO: 2nd page run consumer with parameter topic, show topic, messages from consumer
+                else {
+                    Toast.makeText(getApplicationContext(),
+                            "Redirecting...",Toast.LENGTH_SHORT).show();
+                    String theuser = nameEnter.getText().toString();
+                    Intent myIntent = new Intent(v.getContext(), First_Activity.class);
 
-                //publisher text input file input kalei push function prepei na pairnei parametro to message
+                    myIntent.putExtra("NEEDED_USERNAME", theuser);
+                    startActivity(myIntent);
 
-
-                //Toast.makeText(MainActivity.this, "List item was clicked at " + position + data.get(position), Toast.LENGTH_SHORT).show();
+                }
             }
         });
-    }
 
-    private void generateListContent() {
-
-        node.loadTopics();
-
-        for(int i = 0; i < node.topics.size(); i++) {
-            data.add(node.topics.get(i).getChannelName());
-        }
-    }
-/*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-*/
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-/*
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-*/
-        return super.onOptionsItemSelected(item);
-    }
-
-    private class MyListAdaper extends ArrayAdapter<String> {
-        private int layout;
-        private List<String> mObjects;
-        private MyListAdaper(Context context, int resource, List<String> objects) {
-            super(context, resource, objects);
-            mObjects = objects;
-            layout = resource;
-        }
-
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            ViewHolder mainViewholder = null;
-            if(convertView == null) {
-                LayoutInflater inflater = LayoutInflater.from(getContext());
-                convertView = inflater.inflate(layout, parent, false);
-                ViewHolder viewHolder = new ViewHolder();
-                viewHolder.thumbnail = (ImageView) convertView.findViewById(R.id.list_item_thumbnail);
-                viewHolder.title = (TextView) convertView.findViewById(R.id.list_item_text);
-                viewHolder.button = (Button) convertView.findViewById(R.id.list_item_btn);
-                convertView.setTag(viewHolder);
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
-            mainViewholder = (ViewHolder) convertView.getTag();
-            mainViewholder.button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(getContext(), "Button was clicked for list item " + position, Toast.LENGTH_SHORT).show();
-                }
-            });
-            mainViewholder.title.setText(getItem(position));
+        });
 
-            return convertView;
-        }
-    }
-    public class ViewHolder {
-        ImageView thumbnail;
-        TextView title;
-        Button button;
     }
 }
+
+
+

@@ -71,8 +71,8 @@ public class TopicActivity extends AppCompatActivity {
         setContentView(R.layout.activity_topic);
 
         Intent myIntent = getIntent();
-        subject = myIntent.getStringExtra(MainActivity.EXTRA_SUBJECT);
-        username = myIntent.getStringExtra(MainActivity.EXTRA_USERNAME);
+        subject = myIntent.getStringExtra(First_Activity.EXTRA_SUBJECT);
+        username = myIntent.getStringExtra(First_Activity.EXTRA_USERNAME);
         //usermessage = myIntent.getStringExtra(this.EXTRA_INPUTMESSAGE);
 
         publisher = new Publisher(username);
