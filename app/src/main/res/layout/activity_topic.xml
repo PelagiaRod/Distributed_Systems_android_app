@@ -6,15 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".TopicActivity">
 
+
     <TextView
         android:id="@+id/input_message"
-        android:layout_width="300dp"
-        android:layout_height="514dp"
+        android:layout_width="294dp"
+        android:layout_height="334dp"
         android:text=" "
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.221" />
 
     <TextView
         android:id="@+id/textView"
@@ -80,4 +83,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.06"
         app:srcCompat="@android:drawable/ic_popup_sync" />
+
+    <VideoView
+        android:id="@+id/video"
+        android:layout_width="292dp"
+        android:layout_height="146dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.487"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.762" />
 </androidx.constraintlayout.widget.ConstraintLayout>

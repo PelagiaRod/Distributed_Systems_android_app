@@ -115,16 +115,9 @@ public class First_Activity extends AppCompatActivity {
                 First_Activity.ViewHolder viewHolder = new First_Activity.ViewHolder();
                 viewHolder.thumbnail = (ImageView) convertView.findViewById(R.id.list_item_thumbnail);
                 viewHolder.title = (TextView) convertView.findViewById(R.id.list_item_text);
-                viewHolder.button = (Button) convertView.findViewById(R.id.list_item_btn);
                 convertView.setTag(viewHolder);
             }
             mainViewholder = (First_Activity.ViewHolder) convertView.getTag();
-            mainViewholder.button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(getContext(), "Button was clicked for list item " + position, Toast.LENGTH_SHORT).show();
-                }
-            });
             mainViewholder.title.setText(getItem(position));
 
             return convertView;
@@ -133,7 +126,6 @@ public class First_Activity extends AppCompatActivity {
     public class ViewHolder {
         ImageView thumbnail;
         TextView title;
-        Button button;
     }
 }
 

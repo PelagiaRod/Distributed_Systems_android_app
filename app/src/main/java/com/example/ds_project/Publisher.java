@@ -41,7 +41,7 @@ public class Publisher extends Node implements Runnable {
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
-    private static String chatServer = "192.168.1.190"; //
+    private static String chatServer = "192.168.1.201"; //
     private static File mediaDirectory = new File(new File("").getAbsolutePath() + "/data/media/");
 
     public Publisher(String username) {

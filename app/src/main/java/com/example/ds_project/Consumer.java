@@ -28,7 +28,7 @@ public class Consumer extends Node implements Runnable {
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
-    private static String chatServer = "192.168.1.190"; //"127.0.0.1"
+    private static String chatServer = "192.168.1.201"; //"127.0.0.1"
 
     public Consumer(String username) {
         //System.out.print("Please enter your name : ");
@@ -130,7 +130,7 @@ public class Consumer extends Node implements Runnable {
                                     byte[] fileContentBytes = new byte[fileContentLength];
                                     System.out.println("------>VIDEO IS ABOUT TO BE DOWNLOADED");
                                     input.readFully(fileContentBytes, 0, fileContentLength);
-                                    String rootDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS+ "/downloaded_videos")
+                                    String rootDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                                             + File.separator + fileName;
                                     //---------------//
 //                                    String rootDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
@@ -138,7 +138,7 @@ public class Consumer extends Node implements Runnable {
 //                                    File rootFile = new File(rootDir);
 //                                    rootFile.mkdir();
                                     //-----------------//
-                                    File directory = new File(String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS+ "/downloaded_videos")));
+                                    File directory = new File(String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)));
                                     //File directory = new File(getApplicationContext().getFilesDir() + "/downloaded_songs");
                                     if (!directory.exists())
                                         directory.mkdir();

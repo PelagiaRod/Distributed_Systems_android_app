@@ -214,6 +214,9 @@ public class TopicActivity extends AppCompatActivity {
             //myIntent.putExtra(EXTRA_INPUTMESSAGE, newmessage);
             //startActivity(myIntent);
             inputmessage.setText(result);
+            VideoView  videoView = (VideoView)findViewById(R.id.video);
+            videoView.setVideoPath( Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)+"/VID_20220626_115411.mp4");
+            videoView.start();
             Log.d("MY_TAG", "TEST");
         }
 

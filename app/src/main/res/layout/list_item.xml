@@ -19,10 +19,4 @@ android:descendantFocusability="blocksDescendants">
     android:id="@+id/list_item_text"
     android:layout_toEndOf="@+id/list_item_thumbnail" />
 
-<Button
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="New Text"
-    android:layout_alignParentRight="true"
-    android:id="@+id/list_item_btn"/>
 </RelativeLayout>
